@@ -38,16 +38,17 @@ def analyze_text_entities(text):
         counter=0
         for k, v in results.items():
             if counter==2:
-                break
-            salience = results["salience"]
-            salscore=(0.5-float(salience))
-            if salscore<0:
-                salscore=0
-            withholding+=salscore
+                salience = results["salience"]
+                salscore=(0.5-float(salience))
+                if salscore<0:
+                    salscore=0
+                withholding+=salscore
+            
+            if "NUMBER" in v:
+                
+                withholding +=0.3
             counter+=1
 
-    if "NUMBER" in results.values():
-        withholding +=0.3
     for wordstrong in qwordstrong:
         if wordstrong in text:
             withholding+=0.45
@@ -64,22 +65,29 @@ def analyze_text_entities(text):
     return withholding
         
 
-
+f=open('/Users/rickzhang/Documents/code/htn/google/hack-the-north-2021/trainingSet.csv','w')
+writer = csv.writer(f)
 
 with open('./api/clickbait_data.csv') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     line_count = 0
+    # for i in range(130):
+    #     next(csv_reader)
     for row in csv_reader:
-        if line_count ==10:
-            break
-        elif line_count==0:
+
+        if line_count==0:
             print(f'Column names are {",".join(row)}')
             line_count+=1
         else:
             print("Article "+str(line_count))
-            print(analyze_text_sentiment(row[0]),analyze_text_entities(row[0]))
+            sentiment = analyze_text_sentiment(row[0])
+            withhold = analyze_text_entities(row[0])
+            print(sentiment,withhold)
+            writer.writerow([line_count,row[0],sentiment,withhold])
             line_count+=1
         print("\n\n")
+
+f.close()
 
 
 
