@@ -39,10 +39,10 @@ def analyze_text_entities(text):
 with open('./api/clickbait_data.csv') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     line_count = 0
+    for i in range(20000):
+        next(csv_reader)
     for row in csv_reader:
-        if line_count ==10:
-            break
-        elif line_count==0:
+        if line_count==0:
             print(f'Column names are {",".join(row)}')
             line_count+=1
         else:

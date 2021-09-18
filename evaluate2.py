@@ -67,14 +67,15 @@ def analyze_text_entities(text):
     return withholding
         
 
-f=open('/Users/rickzhang/Documents/code/htn/google/hack-the-north-2021/trainingSet.csv','w')
+f=open('/Users/rickzhang/Documents/code/htn/google/hack-the-north-2021/trainingSet2.csv','w')
 writer = csv.writer(f)
+writer.writerow(["Title","Sentiment","Withhold"])
 
 with open('./api/clickbait_data.csv') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     line_count = 0
-    # for i in range(20000):
-    #     next(csv_reader)
+    for i in range(20000):
+        next(csv_reader)
     for row in csv_reader:
 
         if line_count==0:
@@ -85,7 +86,7 @@ with open('./api/clickbait_data.csv') as csv_file:
             sentiment = analyze_text_sentiment(row[0])
             withhold = analyze_text_entities(row[0])
             print(sentiment,withhold)
-            writer.writerow([line_count,row[0],sentiment,withhold])
+            writer.writerow([row[0],sentiment,withhold])
             line_count+=1
         print("\n\n")
 
