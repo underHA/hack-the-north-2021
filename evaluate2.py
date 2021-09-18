@@ -26,7 +26,9 @@ def analyze_text_entities(text):
     qwordweak = ["if","how","what","what's","should"]
     counter=0
     for entity in response.entities:
-        withholding-=0.1
+        if counter>=3:
+            withholding-=0.3
+
         results = dict(
             name=entity.name,
             type=entity.type_.name,
