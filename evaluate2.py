@@ -17,17 +17,16 @@ def analyze_text_sentiment(text):
     return results['score']  
 
 def analyze_text_entities(text):
-    withholding = 0
+    withholding = 1.95
     client = language.LanguageServiceClient()
     document = language.Document(content=text, type_=language.Document.Type.PLAIN_TEXT)
 
     response = client.analyze_entities(document=document)
-    qwordstrong = ["which"]
+    qwordstrong = ["which","based"]
     qwordweak = ["if","how","what","what's","should"]
-
+    counter=0
     for entity in response.entities:
-        text = text.lower()
-
+        withholding-=0.1
         results = dict(
             name=entity.name,
             type=entity.type_.name,
@@ -35,28 +34,29 @@ def analyze_text_entities(text):
             wikipedia_url=entity.metadata.get("wikipedia_url", "-"),
             mid=entity.metadata.get("mid", "-"),
         )
-        counter=0
-        for k, v in results.items():
-            if counter==2:
-                salience = results["salience"]
-                salscore=(0.5-float(salience))
-                if salscore<0:
-                    salscore=0
-                withholding+=salscore
-            
-            if "NUMBER" in v:
-                
-                withholding +=0.3
-            counter+=1
+        
+        if counter<3:
+            salience = results["salience"]
+            salscore=(float(salience)*1.5)
+            if salscore<0:
+                salscore=0
+            withholding-=salscore
+                 
+        if results["type"]=="NUMBER" and counter==0:
+            withholding +=0.45
+        counter+=1
+        
 
+
+    text = text.lower()
     for wordstrong in qwordstrong:
         if wordstrong in text:
-            withholding+=0.45
-            break
+            withholding+=0.55
+            
     for wordweak in qwordweak:
         if wordweak in text:
-            withholding+=0.15
-            break
+            withholding+=0.35
+            
 
     if withholding<0:
         withholding=0
@@ -71,7 +71,7 @@ writer = csv.writer(f)
 with open('./api/clickbait_data.csv') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     line_count = 0
-    # for i in range(130):
+    # for i in range(20000):
     #     next(csv_reader)
     for row in csv_reader:
 
