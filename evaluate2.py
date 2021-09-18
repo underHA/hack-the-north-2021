@@ -91,6 +91,14 @@ f.close()
 
 
 
+def main(text):
+    sentiment = analyze_text_sentiment(text) #sentiment rating from -1 to 1, with -1 being extremely negative, 0 being neutral, and 1 being extremely positive sentiment.
+    withhold = analyze_text_entities(text) #withhold information rating from 0 to 1, with 0 withholding little to no information, and 1 withholding very much information.
+
+    return sentiment, withhold
+
+
+
 
 
 
