@@ -17,6 +17,7 @@ vocab_size = 10000
 embedding_dim=30
 max_length=5
 training_size = 30000
+num_epochs = 20
 
 
 columnNames=["headline","clickbait"]
@@ -53,27 +54,6 @@ training_labels = np.array(training_clickbait)
 testing_padded = np.array(testing_padded)
 testing_labels = np.array(testing_clickbait)
 
-
-model = tf.keras.Sequential(tf.keras.layers.Embedding(vocab_size,embedding_dim,input_length=max_length))
-model.add(tf.keras.layers.Convolution1D(32,2))
-
-model.add(tf.keras.layers.BatchNormalization())
-model.add(tf.keras.layers.Activation('relu'))
-model.add(tf.keras.layers.Convolution1D(32,2))
-model.add(tf.keras.layers.BatchNormalization())
-model.add(tf.keras.layers.Activation('relu'))
-model.add(tf.keras.layers.Flatten())
-model.add(tf.keras.layers.Dense(1))
-model.add(tf.keras.layers.BatchNormalization())
-model.add(tf.keras.layers.Activation('sigmoid'))
-
-model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
-model.summary()
-
-num_epochs = 2
-history = model.fit(x=np.array(training_padded),y=np.array(training_clickbait),shuffle=True,epochs=num_epochs,validation_data=(np.array(testing_padded),np.array(testing_clickbait)),verbose=2)
-model.save('tfmodels')
-
 def plot_graphs(history,string):
     plt.plot(history.history[string])
     plt.plot(history.history['val_'+string])
@@ -81,19 +61,37 @@ def plot_graphs(history,string):
     plt.ylabel(string)
     plt.legend([string, 'val_'+string])
     plt.show()
-  
-# plot_graphs(history, "accuracy")
-# plot_graphs(history, "loss")
+
+def newModel(vocab_size,embedding_dim,max_length,num_epochs):
+    model = tf.keras.Sequential(tf.keras.layers.Embedding(vocab_size,embedding_dim,input_length=max_length))
+    model.add(tf.keras.layers.Convolution1D(32,2))
+    model.add(tf.keras.layers.BatchNormalization())
+    model.add(tf.keras.layers.Activation('relu'))
+    model.add(tf.keras.layers.Convolution1D(32,2))
+    model.add(tf.keras.layers.BatchNormalization())
+    model.add(tf.keras.layers.Activation('relu'))
+    model.add(tf.keras.layers.Flatten())
+    model.add(tf.keras.layers.Dense(1))
+    model.add(tf.keras.layers.BatchNormalization())
+    model.add(tf.keras.layers.Activation('sigmoid'))
+
+    model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
+    model.summary()
+
+    history = model.fit(x=np.array(training_padded),y=np.array(training_clickbait),shuffle=True,epochs=num_epochs,validation_data=(np.array(testing_padded),np.array(testing_clickbait)),verbose=2)
+    plot_graphs(history, "accuracy")
+    plot_graphs(history, "loss")
+    model.save('tfmodels')
 
 
-
+defaultModel = newModel(vocab_size,embedding_dim,max_length),num_epochs)
 
 def main(text):
     
     mySequence = tokenizer.texts_to_sequences(text)
     mySeqPadded = pad_sequences(mySequence,maxlen=max_length,padding='post',truncating='post')
-    print(model.predict(mySeqPadded)[0,0])
-    return model.predict(mySeqPadded)
+    print(defaultModel.predict(mySeqPadded)[0,0])
+    return defaultModel.predict(mySeqPadded)
 
 
 main('hello world i am buying a car')
