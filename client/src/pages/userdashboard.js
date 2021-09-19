@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Bargraph from '../components/bargraph';
 import ScatterChart from '../components/scatter';
+import loadingGif from '../images/loading.gif';
 
 const UserDashBoard = () => {
   const [clickbaitData, setClickbaitData] = useState();
@@ -8,11 +9,14 @@ const UserDashBoard = () => {
   const [title, setTitle] = useState();
 
   useEffect(() => {
-    fetch('/api/handleData')
-      .then((res) => res.json())
-      .then((data) => setClickbaitData(data))
-      .catch((err) => console.log(err));
-  }, []);
+    if (loading) {
+      fetch('/api/handleData')
+        .then((res) => res.json())
+        .then((data) => setClickbaitData(data))
+        .catch((err) => console.log(err));
+      setLoading(false);
+    }
+  }, [loading]);
 
   let today = new Date();
   const options = {
@@ -26,13 +30,14 @@ const UserDashBoard = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch('/handleData', {
+    fetch('/api/handleData', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(title),
     });
+    setLoading(true);
   };
 
   return (
@@ -47,16 +52,38 @@ const UserDashBoard = () => {
               type="text"
               onChange={({ target }) => setTitle(target.value)}
               class="searchTerm"
-              placeholder="Enter a title here"
+              placeholder="Enter any title to see if it's clickbait!"
             ></input>
             <button type="submit" class="searchButton">
               Enter
             </button>
           </form>
         </div>
-        <div className="daily-graphs">
-          <ScatterChart clickbaitData={clickbaitData} />
-        </div>
+        {loading ? (
+          <img src={loadingGif} />
+        ) : (
+          <div>
+            <div className="clickbait-analysis">
+              {clickbaitData && (
+                <p>
+                  The article you clicked on is {clickbaitData.clickbait}%
+                  clickbait.
+                </p>
+              )}
+              {clickbaitData && (
+                <p>Scroll to the graph below to see details. </p>
+              )}
+            </div>
+            <br />
+            <br />
+            <br />
+            <div className="daily-graphs">
+              {clickbaitData && (
+                <ScatterChart clickbaitData={clickbaitData.coordinates} />
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

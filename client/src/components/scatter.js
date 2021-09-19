@@ -8,6 +8,7 @@ const ScatterChart = ({ clickbait }) => {
       {
         label: 'A dataset',
         data: [
+          // x: clickbait[0], y: clickbait[1]
           { x: 0.1, y: 0.2 },
           { x: 0.3, y: 0.4 },
           { x: 0.4, y: 0.5 },
