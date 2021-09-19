@@ -1,13 +1,5 @@
 from google.cloud import language
 import csv
-from flask import Flask
-app = Flask('Clickfait')
-
-
-
-
-
-
 
 
 
@@ -104,17 +96,17 @@ f.close()
 
 
 def main(text):
-    sentiment = round(analyze_text_sentiment(text),2) #sentiment rating from -1 to 1, with -1 being extremely negative, 0 being neutral, and 1 being extremely positive sentiment.
-    withhold = round(analyze_text_entities(text),2) #withhold information rating from 0 to 1, with 0 withholding little to no information, and 1 withholding very much information.
+    sentiment = ("{:0.2f}".format(analyze_text_sentiment(text))) #sentiment rating from -1 to 1, with -1 being extremely negative, 0 being neutral, and 1 being extremely positive sentiment.
+    withhold = ("{:0.2f}".format(analyze_text_entities(text))) #withhold information rating from 0 to 1, with 0 withholding little to no information, and 1 withholding very much information.
+    ans=[]
+    ans.append(sentiment)
+    ans.append(withhold)
+    return ans
 
-    return sentiment, withhold
 
 
 
 
-@app.route('/clickbaitPlots')
-def returnData(text):
-    return main(text)
 
 
 
