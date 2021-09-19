@@ -1,5 +1,15 @@
 from google.cloud import language
 import csv
+from flask import Flask
+app = Flask('Clickfait')
+
+
+
+
+
+
+
+
 
 
 def analyze_text_sentiment(text):
@@ -67,15 +77,13 @@ def analyze_text_entities(text):
     return withholding
         
 
-f=open('/Users/rickzhang/Documents/code/htn/google/hack-the-north-2021/trainingSet2.csv','w')
+f=open('/Users/rickzhang/Documents/code/htn/google/hack-the-north-2021/trainingSet3.csv','w')
 writer = csv.writer(f)
 writer.writerow(["Title","Sentiment","Withhold"])
 
 with open('./api/clickbait_data.csv') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     line_count = 0
-    for i in range(20000):
-        next(csv_reader)
     for row in csv_reader:
 
         if line_count==0:
@@ -83,9 +91,10 @@ with open('./api/clickbait_data.csv') as csv_file:
             line_count+=1
         else:
             print("Article "+str(line_count))
-            sentiment = analyze_text_sentiment(row[0])
-            withhold = analyze_text_entities(row[0])
-            print(sentiment,withhold)
+            sentiment = float(analyze_text_sentiment(row[0]))
+            withhold = float(analyze_text_entities(row[0]))
+            print("{:0.2f}, {:0.2f}".format(sentiment,withhold))
+
             writer.writerow([row[0],sentiment,withhold])
             line_count+=1
         print("\n\n")
@@ -95,12 +104,17 @@ f.close()
 
 
 def main(text):
-    sentiment = analyze_text_sentiment(text) #sentiment rating from -1 to 1, with -1 being extremely negative, 0 being neutral, and 1 being extremely positive sentiment.
-    withhold = analyze_text_entities(text) #withhold information rating from 0 to 1, with 0 withholding little to no information, and 1 withholding very much information.
+    sentiment = round(analyze_text_sentiment(text),2) #sentiment rating from -1 to 1, with -1 being extremely negative, 0 being neutral, and 1 being extremely positive sentiment.
+    withhold = round(analyze_text_entities(text),2) #withhold information rating from 0 to 1, with 0 withholding little to no information, and 1 withholding very much information.
 
     return sentiment, withhold
 
 
+
+
+@app.route('/clickbaitPlots')
+def returnData(text):
+    return main(text)
 
 
 
